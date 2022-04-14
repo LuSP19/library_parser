@@ -1,5 +1,9 @@
 # Project-specific files
 books/
+bs4_tutorial.py
+
+# VS Code
+*.code-workspace
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
