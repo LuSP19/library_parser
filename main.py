@@ -64,6 +64,10 @@ def main():
             check_for_redirect(response)
             soup = BeautifulSoup(response.text, 'lxml')
             title = soup.find('h1').text.split('::')[0].strip()
+            comments = '\n'.join([
+                tag.find(class_='black').text
+                for tag in soup.find_all(class_='texts')
+            ])
 
             file_url = file_url_pattern.format(book_id)
             filepath = download_txt(file_url, f'{book_id}. {title}')
@@ -75,6 +79,7 @@ def main():
                 download_image(image_url)
                 print('Заголовок:', title)
                 print(image_url)
+                print(comments)
         except requests.exceptions.HTTPError:
             pass
 
