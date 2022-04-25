@@ -52,6 +52,34 @@ def download_image(url, folder='images/'):
         pass
 
 
+def parse_book_page(content):
+    soup = BeautifulSoup(content, 'lxml')
+    title, author = list(map(str.strip, soup.find('h1').text.split('::')))
+    genres = [
+        tag.text
+        for tag
+        in soup.find('div', {'id': 'content'}).find(
+            'span', class_='d_book'
+        ).find_all('a', href=True)
+    ]
+    image_url = urljoin(
+        'https://tululu.org/',
+        soup.find(class_='bookimage').find('img')['src']
+    )
+    comments = '\n'.join([
+        tag.find(class_='black').text
+        for tag in soup.find_all(class_='texts')
+    ])
+
+    return {
+        'title': title,
+        'author': author,
+        'genres': genres,
+        'image_url': image_url,
+        'comments': comments,
+    }
+
+
 def main():
     page_url_pattern = 'https://tululu.org/b{0}/'
     file_url_pattern = 'https://tululu.org/txt.php?id={0}'
@@ -62,32 +90,16 @@ def main():
         response.raise_for_status()
         try:
             check_for_redirect(response)
-            soup = BeautifulSoup(response.text, 'lxml')
-            title = soup.find('h1').text.split('::')[0].strip()
-            comments = '\n'.join([
-                tag.find(class_='black').text
-                for tag in soup.find_all(class_='texts')
-            ])
-            genres = [
-                tag.text
-                for tag
-                in soup.find('div', {'id': 'content'}).find(
-                    'span', class_='d_book'
-                ).find_all('a', href=True)
-            ]
+            book_info = parse_book_page(response.text)
 
             file_url = file_url_pattern.format(book_id)
+            title = book_info['title']
             filepath = download_txt(file_url, f'{book_id}. {title}')
             if filepath:
-                image_url = urljoin(
-                    'https://tululu.org/',
-                    soup.find(class_='bookimage').find('img')['src']
-                )
-                download_image(image_url)
+                download_image(book_info['image_url'])
                 print('Заголовок:', title)
-                print(image_url)
-                print(comments)
-                print(genres)
+                print(book_info['genres'])
+                print()
         except requests.exceptions.HTTPError:
             pass
 
