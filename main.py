@@ -68,6 +68,13 @@ def main():
                 tag.find(class_='black').text
                 for tag in soup.find_all(class_='texts')
             ])
+            genres = [
+                tag.text
+                for tag
+                in soup.find('div', {'id': 'content'}).find(
+                    'span', class_='d_book'
+                ).find_all('a', href=True)
+            ]
 
             file_url = file_url_pattern.format(book_id)
             filepath = download_txt(file_url, f'{book_id}. {title}')
@@ -80,6 +87,7 @@ def main():
                 print('Заголовок:', title)
                 print(image_url)
                 print(comments)
+                print(genres)
         except requests.exceptions.HTTPError:
             pass
 
