@@ -1,6 +1,6 @@
+import argparse
 from pathlib import Path
 from urllib.parse import unquote, urljoin, urlsplit
-import argparse
 
 import requests
 from bs4 import BeautifulSoup
