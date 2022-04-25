@@ -1,5 +1,6 @@
 from pathlib import Path
 from urllib.parse import unquote, urljoin, urlsplit
+import argparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -84,7 +85,27 @@ def main():
     page_url_pattern = 'https://tululu.org/b{0}/'
     file_url_pattern = 'https://tululu.org/txt.php?id={0}'
 
-    for book_id in range(1, 11):
+    parser = argparse.ArgumentParser(
+        description='Скачивание книг с tululu.org',
+    )
+    parser.add_argument(
+        '-s',
+        '--start_id',
+        help='id книги, с которой начать',
+        default=1,
+        type=int,
+    )
+    parser.add_argument(
+        '-e',
+        '--end_id',
+        help='id книги, которой закончить',
+        default=10,
+        type=int,
+    )
+
+    args = parser.parse_args()
+
+    for book_id in range(args.start_id, args.end_id + 1):
         page_url = page_url_pattern.format(book_id)
         response = requests.get(page_url)
         response.raise_for_status()
@@ -97,8 +118,8 @@ def main():
             filepath = download_txt(file_url, f'{book_id}. {title}')
             if filepath:
                 download_image(book_info['image_url'])
-                print('Заголовок:', title)
-                print(book_info['genres'])
+                print('Название:', title)
+                print('Автор:', book_info['author'])
                 print()
         except requests.exceptions.HTTPError:
             pass
