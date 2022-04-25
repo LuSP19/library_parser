@@ -111,15 +111,14 @@ def main():
         response.raise_for_status()
         try:
             check_for_redirect(response)
-            book_info = parse_book_page(response.text)
+            book = parse_book_page(response.text)
 
             file_url = file_url_pattern.format(book_id)
-            title = book_info['title']
-            filepath = download_txt(file_url, f'{book_id}. {title}')
+            filepath = download_txt(file_url, f'{book_id}. {book["title"]}')
             if filepath:
-                download_image(book_info['image_url'])
-                print('Название:', title)
-                print('Автор:', book_info['author'])
+                download_image(book['image_url'])
+                print('Название:', book['title'])
+                print('Автор:', book['author'])
                 print()
         except requests.exceptions.HTTPError:
             pass
