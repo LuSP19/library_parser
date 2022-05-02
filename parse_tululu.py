@@ -12,7 +12,7 @@ def check_for_redirect(response):
         raise requests.exceptions.HTTPError()
 
 
-def download_txt(url, filename, folder='books/'):
+def download_txt(url, payload, filename, folder='books/'):
     """Функция для скачивания текстовых файлов.
     Args:
         url (str): Cсылка на текст, который хочется скачать.
@@ -21,7 +21,7 @@ def download_txt(url, filename, folder='books/'):
     Returns:
         str: Путь до файла, куда сохранён текст.
     """
-    response = requests.get(url)
+    response = requests.get(url, params=payload)
     response.raise_for_status()
     try:
         check_for_redirect(response)
@@ -83,7 +83,7 @@ def parse_book_page(content):
 
 def main():
     page_url_pattern = 'https://tululu.org/b{0}/'
-    file_url_pattern = 'https://tululu.org/txt.php?id={0}'
+    base_file_url = 'https://tululu.org/txt.php'
 
     parser = argparse.ArgumentParser(
         description='Скачивание книг с tululu.org',
@@ -113,8 +113,10 @@ def main():
             check_for_redirect(response)
             book = parse_book_page(response.text)
 
-            file_url = file_url_pattern.format(book_id)
-            filepath = download_txt(file_url, f'{book_id}. {book["title"]}')
+            payload = {'id': book_id}
+            filepath = download_txt(
+                base_file_url, payload, f'{book_id}. {book["title"]}'
+            )
             if filepath:
                 download_image(book['image_url'])
                 print('Название:', book['title'])
