@@ -25,34 +25,28 @@ def download_txt(url, payload, filename, folder='books/'):
     """
     response = requests.get(url, params=payload)
     response.raise_for_status()
-    try:
-        check_for_redirect(response)
+    check_for_redirect(response)
 
-        Path(folder).mkdir(exist_ok=True)
-        filepath = Path(folder, sanitize_filename(f'{filename}.txt'))
-        with open(filepath, 'wb') as file:
-            file.write(response.content)
+    Path(folder).mkdir(exist_ok=True)
+    filepath = Path(folder, sanitize_filename(f'{filename}.txt'))
+    with open(filepath, 'wb') as file:
+        file.write(response.content)
 
-        return filepath
-    except requests.exceptions.HTTPError:
-        pass
+    return filepath
 
 
 def download_image(url, folder='images/'):
     response = requests.get(url)
     response.raise_for_status()
-    try:
-        check_for_redirect(response)
+    check_for_redirect(response)
 
-        Path(folder).mkdir(exist_ok=True)
-        filename = unquote(urlsplit(url)[2].split('/')[-1])
-        filepath = Path(folder, filename)
-        with open(filepath, 'wb') as file:
-            file.write(response.content)
+    Path(folder).mkdir(exist_ok=True)
+    filename = unquote(urlsplit(url)[2].split('/')[-1])
+    filepath = Path(folder, filename)
+    with open(filepath, 'wb') as file:
+        file.write(response.content)
 
-        return filepath
-    except requests.exceptions.HTTPError:
-        pass
+    return filepath
 
 
 def parse_book_page(content, base_url):
