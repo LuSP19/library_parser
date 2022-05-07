@@ -55,7 +55,7 @@ def download_image(url, folder='images/'):
         pass
 
 
-def parse_book_page(content):
+def parse_book_page(content, base_url):
     soup = BeautifulSoup(content, 'lxml')
     title, author = list(map(str.strip, soup.find('h1').text.split('::')))
     genres = [
@@ -66,7 +66,7 @@ def parse_book_page(content):
         ).find_all('a', href=True)
     ]
     image_url = urljoin(
-        'https://tululu.org/',
+        base_url,
         soup.find(class_='bookimage').find('img')['src']
     )
     comments = '\n'.join([
@@ -113,7 +113,7 @@ def main():
             response = requests.get(page_url)
             response.raise_for_status()
             check_for_redirect(response)
-            book = parse_book_page(response.text)
+            book = parse_book_page(response.text, page_url)
 
             payload = {'id': book_id}
             filepath = download_txt(
