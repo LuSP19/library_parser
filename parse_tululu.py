@@ -1,5 +1,7 @@
 import argparse
+import sys
 from pathlib import Path
+from time import sleep
 from urllib.parse import unquote, urljoin, urlsplit
 
 import requests
@@ -107,9 +109,9 @@ def main():
 
     for book_id in range(args.start_id, args.end_id + 1):
         page_url = page_url_pattern.format(book_id)
-        response = requests.get(page_url)
-        response.raise_for_status()
         try:
+            response = requests.get(page_url)
+            response.raise_for_status()
             check_for_redirect(response)
             book = parse_book_page(response.text)
 
@@ -123,7 +125,10 @@ def main():
                 print('Автор:', book['author'])
                 print()
         except requests.exceptions.HTTPError:
-            pass
+            print('HTTP error', file=sys.stderr)
+        except requests.exceptions.ConnectionError:
+            print('Connection error', file=sys.stderr)
+            sleep(3)
 
 
 if __name__ == '__main__':
