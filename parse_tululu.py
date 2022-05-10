@@ -78,6 +78,7 @@ def parse_book_page(content, base_url):
 
 
 def main():
+    timeout = [1, 2, 4, 8]
     page_url_pattern = 'https://tululu.org/b{0}/'
     base_file_url = 'https://tululu.org/txt.php'
 
@@ -101,7 +102,10 @@ def main():
 
     args = parser.parse_args()
 
-    for book_id in range(args.start_id, args.end_id + 1):
+    book_id = args.start_id
+    retry = 0
+
+    while book_id < args.end_id + 1:
         page_url = page_url_pattern.format(book_id)
         try:
             response = requests.get(page_url)
@@ -118,11 +122,18 @@ def main():
                 print('Название:', book['title'])
                 print('Автор:', book['author'])
                 print()
+            book_id += 1
+            retry = 0
         except requests.exceptions.HTTPError:
             print('HTTP error', file=sys.stderr)
+            book_id += 1
         except requests.exceptions.ConnectionError:
             print('Connection error', file=sys.stderr)
-            sleep(3)
+            sleep(timeout[retry])
+            retry += 1
+            if retry > len(timeout) - 1:
+                print('Check your connection', file=sys.stderr)
+                break
 
 
 if __name__ == '__main__':
