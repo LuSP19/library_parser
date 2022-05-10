@@ -35,14 +35,17 @@ def download_txt(url, payload, filename, folder='books/'):
     return filepath
 
 
-def download_image(url, folder='images/'):
+def download_image(url, addendum, folder='images/'):
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
 
     Path(folder).mkdir(exist_ok=True)
-    filename = unquote(urlsplit(url)[2].split('/')[-1])
-    filepath = Path(folder, filename)
+    filename = Path(unquote(urlsplit(url)[2].split('/')[-1]))
+    unique_filename = '{0}_{2}{1}'.format(
+        filename.stem, filename.suffix, addendum
+    )
+    filepath = Path(folder, unique_filename)
     with open(filepath, 'wb') as file:
         file.write(response.content)
 
@@ -118,7 +121,7 @@ def main():
                 base_file_url, payload, f'{book_id}. {book["title"]}'
             )
             if filepath:
-                download_image(book['image_url'])
+                download_image(book['image_url'], book_id)
             book_id += 1
             retry = 0
         except requests.exceptions.HTTPError:
