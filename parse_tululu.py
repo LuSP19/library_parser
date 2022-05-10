@@ -119,9 +119,6 @@ def main():
             )
             if filepath:
                 download_image(book['image_url'])
-                print('Название:', book['title'])
-                print('Автор:', book['author'])
-                print()
             book_id += 1
             retry = 0
         except requests.exceptions.HTTPError:
