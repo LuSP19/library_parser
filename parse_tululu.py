@@ -81,7 +81,7 @@ def parse_book_page(content, base_url):
 
 
 def main():
-    timeout = [1, 2, 4, 8]
+    timeouts = [1, 2, 4, 8]
     page_url_pattern = 'https://tululu.org/b{0}/'
     base_file_url = 'https://tululu.org/txt.php'
 
@@ -129,9 +129,9 @@ def main():
             book_id += 1
         except requests.exceptions.ConnectionError:
             print('Connection error', file=sys.stderr)
-            sleep(timeout[retry])
+            sleep(timeouts[retry])
             retry += 1
-            if retry > len(timeout) - 1:
+            if retry > len(timeouts) - 1:
                 print('Check your connection', file=sys.stderr)
                 break
 
