@@ -55,21 +55,21 @@ def download_image(url, addendum, folder='images/'):
 def parse_book_page(content, base_url):
     soup = BeautifulSoup(content, 'lxml')
     title, author = list(map(str.strip, soup.find('h1').text.split('::')))
-    genres = [
-        tag.text
-        for tag
-        in soup.find('div', {'id': 'content'}).find(
-            'span', class_='d_book'
-        ).find_all('a', href=True)
-    ]
+    genre_tags = soup.find(
+        'div', {'id': 'content'}
+    ).find('span', class_='d_book').find_all('a', href=True)
+    genres = []
+    for tag in genre_tags:
+        genres.append(tag.text)
     image_url = urljoin(
         base_url,
         soup.find(class_='bookimage').find('img')['src']
     )
-    comments = '\n'.join([
-        tag.find(class_='black').text
-        for tag in soup.find_all(class_='texts')
-    ])
+    comment_tags = soup.find_all(class_='texts')
+    comments = []
+    for tag in comment_tags:
+        comments.append(tag.find(class_='black').text)
+    comments = '\n'.join(comments)
 
     return {
         'title': title,
