@@ -41,7 +41,10 @@ def download_image(url, addendum, folder='images/'):
     check_for_redirect(response)
 
     Path(folder).mkdir(exist_ok=True)
-    filename = Path(unquote(urlsplit(url)[2].split('/')[-1]))
+    path = urlsplit(url)[2]
+    filename = path.split('/')[-1]
+    filename = unquote(filename)
+    filename = Path(filename)
     unique_filename = '{0}_{2}{1}'.format(
         filename.stem, filename.suffix, addendum
     )
